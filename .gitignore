@@ -1,0 +1,28 @@
+# 🔧 Archivos de construcción y metadatos
+build/
+dist/
+*.egg-info/
+
+# 🐍 Cachés de Python
+__pycache__/
+*.pyc
+*.pyo
+
+# 📦 Entornos virtuales
+.env/
+.venv/
+venv/
+ENV/
+env/
+
+# 📁 Base de datos del proyecto (puede omitirse si deseás mantenerla fuera del repo)
+src/models/DB/
+
+# ✏️ Carpeta de metadatos del paquete
+src/skyroute.egg-info/
+
+# 👍 Editor y sistema operativo
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db

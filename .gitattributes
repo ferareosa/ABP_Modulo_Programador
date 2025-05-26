@@ -1,0 +1,22 @@
+# Archivos de texto comunes
+
+*.py     text eol=lf
+*.md     text eol=lf
+*.csv    text eol=lf
+*.txt    text eol=lf
+*.json   text eol=lf
+
+# Archivos gráficos y binarios (Git no debe alterar)
+
+*.svg    text eol=lf
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.pdf    binary
+*.drawio binary
+
+# Configuración general
+
+*text=auto
+
