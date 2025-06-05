@@ -1,93 +1,138 @@
-import os
-import pandas as pd
 from ..types import Cliente
-from .scripts import cargar_o_crear_csv
-from .scripts import guardar_csv
+from .scripts import ejecutar_query
 
-def obtener_clientes() -> pd.DataFrame:
+
+def obtener_clientes() -> list[Cliente]:
     """
-    Obtiene la lista de clientes desde un archivo CSV. Si el archivo no existe, lo crea vacío con los encabezados esperados.
-    
+    Obtiene todos los clientes desde la base de datos.
+
     Returns:
-        pd.DataFrame: DataFrame con los datos de los clientes.
+        list[Cliente]: Lista de diccionarios con los clientes.
     """
-    columnas = ["cuit", "razon_social", "email"]
-    return cargar_o_crear_csv('models/DB/clientes.csv', columnas)
+    query = "SELECT cuit, razon_social, email FROM Cliente"
+    return ejecutar_query(query, fetch=True) or []
 
-def guardar_clientes(df_nuevo: pd.DataFrame) -> None:
+
+def guardar_cliente(cliente: Cliente) -> Cliente | None:
     """
-    Guarda el DataFrame de clientes en un archivo CSV.
-    
+    Inserta un nuevo cliente en la base de datos si no existe.
+
     Args:
-        df (pd.DataFrame): DataFrame con los datos de los clientes.
-    """
-    guardar_csv(df_nuevo, 'models/DB/clientes.csv')
+        cliente (Cliente): Diccionario con los datos del cliente.
 
-def imprimir_clientes() -> None:
+    Returns:
+        Cliente | None: El cliente insertado o None si ya existía o hubo error.
     """
-    Imprime la lista de clientes en la consola.
-    """
-    df = obtener_clientes()
-    print(df.to_string(justify="center"))
+    if not (isinstance(cliente["cuit"], int) and isinstance(cliente["razon_social"], str) and isinstance(cliente["email"], str)):
+        print("Cliente no válido.")
+        return None
 
-def nuevo_cliente(cliente: Cliente) -> Cliente | None:
-    """
-    Agrega un nuevo cliente al archivo CSV.
-    
-    Args:
-        cliente (dict): Diccionario con los datos del cliente a agregar.
-    """
-    # Verificar si el valor de cliente es correcto
-    if not (type(cliente["cuit"]) == int and type(cliente["razon_social"]) == str and type(cliente["email"]) == str):
-        print("El cliente nuevo no es correcto.")
-        return
-    # Verificar si el cliente ya existe
     if es_cliente(cliente["cuit"]):
         print("El cliente ya existe.")
-        return
-    df = obtener_clientes()
-    df.loc[len(df)] = cliente
-    guardar_clientes(df)
+        return None
+
+    query = """
+        INSERT INTO Cliente (cuit, razon_social, email)
+        VALUES (%s, %s, %s)
+    """
+    params = (cliente["cuit"], cliente["razon_social"], cliente["email"])
+    ejecutar_query(query, params)
     return cliente
+
 
 def obtener_cliente(cuit: int) -> Cliente | None:
     """
-    Obtiene un cliente específico por su CUIT.
-    
-    Args:
-        cuit (int): CUIT del cliente a buscar.
-    
-    Returns:
-        dict: Diccionario con los datos del cliente encontrado, o None si no se encuentra.
-    """
-    if not es_cliente(cuit):
-        print("Cliente no encontrado.")
-        return None
-    else:
-        df = obtener_clientes()
-        cliente = df[df['cuit'] == cuit]
-        return cliente.iloc[0].to_dict()
+    Obtiene un cliente por su CUIT.
 
-def delete_cliente(cuit: int) -> None:
+    Args:
+        cuit (int): CUIT del cliente.
+
+    Returns:
+        Cliente | None: Diccionario con el cliente o None si no se encuentra.
     """
-    Elimina un cliente específico por su CUIT.
-    
+    query = "SELECT * FROM Cliente WHERE cuit = %s"
+    resultado = ejecutar_query(query, (cuit,), fetch=True)
+    return resultado[0] if resultado else None
+
+
+def eliminar_cliente(cuit: int) -> None:
+    """
+    Elimina un cliente de la base de datos.
+
     Args:
         cuit (int): CUIT del cliente a eliminar.
     """
-    df = obtener_clientes()
-    df = df[df['cuit'] != cuit]
-    guardar_clientes(df)
+    query = "DELETE FROM clientes WHERE cuit = %s"
+    ejecutar_query(query, (cuit,))
+
 
 def es_cliente(cuit: int) -> bool:
     """
-    Verifica si un cliente existe por su CUIT.
-    
+    Verifica si un cliente con ese CUIT existe en la base de datos.
+
     Args:
-        cuit (int): CUIT del cliente a verificar.
-    
+        cuit (int): CUIT a verificar.
+
     Returns:
-        bool: True si el cliente existe, False en caso contrario.
+        bool: True si el cliente existe, False si no.
     """
-    df = obtener_clientes()
-    return not df[df['cuit'] == cuit].empty
+    query = "SELECT 1 FROM Cliente WHERE cuit = %s"
+    resultado = ejecutar_query(query, (cuit,), fetch=True)
+    return bool(resultado)
+
+
+def imprimir_clientes() -> None:
+    """
+    Imprime todos los clientes en consola.
+    """
+    clientes = obtener_clientes()
+    if not clientes:
+        print("No hay clientes registrados.")
+        return
+
+    for cliente in clientes:
+        print(f"CUIT: {cliente['cuit']} | Razon Social: {cliente['razon_social']} | Email: {cliente['email']}")
+
+def nuevo_cliente(cliente: Cliente) -> None:
+    """
+    Inserta un nuevo cliente en la base de datos si no existe previamente.
+
+    Args:
+        cliente (Cliente): Diccionario con los datos del cliente.
+    """
+    # Verificar si ya existe un cliente con ese cuit
+    existe = ejecutar_query("SELECT * FROM Cliente WHERE cuit = %s", (cliente["cuit"],), fetch=True)
+    if existe:
+        print("El cliente ya existe.")
+        return
+
+    query = """
+        INSERT INTO Cliente (cuit, nombre, apellido, edad)
+        VALUES (%s, %s, %s, %s)
+    """
+    params = (
+        cliente["cuit"],
+        cliente["nombre"],
+        cliente["apellido"],
+        cliente["edad"]
+    )
+    ejecutar_query(query, params)
+    print("Cliente agregado correctamente.")
+
+
+def delete_cliente(cuit: str) -> None:
+    """
+    Elimina un cliente de la base de datos por su CUIT.
+
+    Args:
+        cuit (str): CUIT del cliente a eliminar.
+    """
+    # Verificar si el cliente existe
+    existe = ejecutar_query("SELECT * FROM Cliente WHERE cuit = %s", (cuit,), fetch=True)
+    if not existe:
+        print("Cliente no encontrado.")
+        return
+
+    query = "DELETE FROM Cliente WHERE cuit = %s"
+    ejecutar_query(query, (cuit,))
+    print("Cliente eliminado correctamente.")

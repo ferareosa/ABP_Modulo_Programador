@@ -6,9 +6,7 @@
 
 ## 👥 Integrantes del Grupo
 
-- **Annone, Ariel Gastón** – DNI: 29.449.852
 - **Areosa, Fernando** – DNI: 36.131.545
-- **Krenz, Catalina** – DNI: 35.964.865
 - **Muñoz Brizuela, Fátima Belén** – DNI: 39.824.821
 - **Varela, Mario** – DNI: 31.401.019
 
@@ -54,7 +52,7 @@
 
 #### 1. Cliente
 
-- `cuit` (Texto) → **Clave primaria**
+- `cuit` (Número entero) → **Clave primaria**
 - `razon_social` (Texto)
 - `email` (Texto)
 
@@ -68,8 +66,8 @@
 
 #### 3. Pasaje
 
-- `id_venta` (Texto) → **Clave primaria**
-- `cuit` (Texto) → **Clave foránea a Cliente**
+- `id_venta` (Número entero) → **Clave primaria**
+- `cuit` (Número entero) → **Clave foránea a Cliente**
 - `id_destino` (Texto) → **Clave foránea a Destino**
 - `fecha_venta` (Texto)
 - `estado` (Booleano)

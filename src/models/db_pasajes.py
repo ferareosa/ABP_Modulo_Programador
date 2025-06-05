@@ -1,85 +1,95 @@
-from datetime import datetime
-from datetime import timedelta
-import pandas as pd
+from datetime import datetime, timedelta
 from ..types import Pasaje
-from .scripts import cargar_o_crear_csv
-from .scripts import guardar_csv
-def obtener_pasajes()-> pd.DataFrame:
-    """
-    Obtiene la lista de pasajes desde un archivo CSV y la devuelve como un DataFrame de pandas.
-    
-    Returns:
-        pd.DataFrame: DataFrame con los datos de los pasajes.
-    """
-    columnas = ['id_venta','cuit','id_destino','fecha_venta','estado','costo_total']
-    return cargar_o_crear_csv('models/DB/pasajes.csv', columnas)
+from .scripts import ejecutar_query
 
-def guardar_compras(df_nuevo: pd.DataFrame) -> None:
+
+def obtener_pasajes() -> list[Pasaje]:
     """
-    Guarda el DataFrame de pasajes en un archivo CSV.
-    
-    Args:
-        df (pd.DataFrame): DataFrame con los datos de los pasajes.
+    Obtiene la lista de pasajes desde la base de datos.
+
+    Returns:
+        list[Pasaje]: Lista de pasajes como diccionarios.
     """
-    guardar_csv(df_nuevo, 'models/DB/pasajes.csv')
+    query = "SELECT * FROM Pasaje"
+    return ejecutar_query(query, fetch=True) or []
+
 
 def imprimir_registro() -> None:
     """
-    Imprime la lista de compras de pasajes en la consola.
+    Imprime la lista de pasajes en la consola.
     """
-    df = obtener_pasajes()
-    print(df.to_string(justify="center"))
+    pasajes = obtener_pasajes()
+    if not pasajes:
+        print("No hay pasajes registrados.")
+        return
 
-def comprar_pasaje(pasaje: Pasaje):
+    for p in pasajes:
+        print(f"ID Venta: {p['id_venta']} | CUIT: {p['cuit']} | Destino: {p['id_destino']} | Fecha: {p['fecha_venta']} | Estado: {'Activo' if p['estado'] else 'Inactivo'} | Costo: ${p['costo_total']}")
+
+
+def comprar_pasaje(pasaje: Pasaje) -> None:
     """
-    Registra la compra de un pasaje en el archivo CSV.
-    
+    Registra la compra de un pasaje en la base de datos.
+
     Args:
-        pasaje (Pasaje): Objeto Pasaje con los datos de la compra.
+        pasaje (Pasaje): Diccionario con los datos del pasaje.
     """
+    nuevo_id = nuevo_id_pasaje()
+    pasaje["id_venta"] = nuevo_id
 
-    df = obtener_pasajes()
-    df.loc[len(df)] = pasaje
+    query = """
+        INSERT INTO Pasaje (id_venta, cuit, id_destino, fecha_venta, estado, costo_total)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """
+    params = (
+        pasaje["id_venta"],
+        pasaje["cuit"],
+        pasaje["id_destino"],
+        pasaje["fecha_venta"], 
+        True,
+        pasaje["costo_total"]
+    )
+    ejecutar_query(query, params)
     print("Pasaje comprado con éxito.")
-    guardar_compras(df)
+
 
 def nuevo_id_pasaje() -> int:
     """
     Genera un nuevo ID único para un pasaje.
-    
+
     Returns:
-        int: Nuevo ID de pasaje.
+        int: Nuevo ID.
     """
-    df = obtener_pasajes()
-    if df.empty:
-        return 1
-    else:
-        return df['id_venta'].max() + 1
+    query = "SELECT MAX(id_venta) AS max_id FROM Pasaje"
+    resultado = ejecutar_query(query, fetch=True)
+    return (resultado[0]["max_id"] or 0) + 1
+
 
 def cancelar_pasaje(id_pasaje: int) -> None:
     """
-    Cancela un pasaje dado su ID.
+    Cancela un pasaje dado su ID, si no han pasado más de 60 días desde la compra.
 
     Args:
-        id_pasaje (int): ID del pasaje a cancelar.
+        id_pasaje (int): ID del pasaje.
     """
-    df = obtener_pasajes()
+    query = "SELECT fecha_venta FROM Pasaje WHERE id_venta = %s AND estado = TRUE"
+    resultado = ejecutar_query(query, (id_pasaje,), fetch=True)
 
-    if id_pasaje not in df['id_venta'].values:
-        print(f"Pasaje con ID {id_pasaje} no encontrado.")
+    if not resultado:
+        print(f"Pasaje con ID {id_pasaje} no encontrado o ya cancelado.")
         return
-    
-    # Verificar si el pasaje fue comprado hace más de 60 días
-    fecha_de_compra = datetime.strptime(df[df['id_venta'] == id_pasaje]['fecha_venta'].values[0], '%d/%m/%Y')
-    fecha_limite = fecha_de_compra + timedelta(days=60)
-    fecha_actual = datetime.now()
-    if fecha_actual > fecha_limite:
-        print(f"Pasaje con ID {id_pasaje} no puede ser cancelado. Ha pasado el plazo de 60 días.")
+
+    fecha_venta_str = resultado[0]["fecha_venta"]
+    try:
+        fecha_venta = datetime.strptime(fecha_venta_str, "%Y-%m-%d")
+    except ValueError:
+        print("Formato de fecha inválido en la base de datos.")
         return
-    
-    # Cambiar el estado directamente en el DataFrame original
-    df.loc[df['id_venta'] == id_pasaje, 'estado'] = False
-    guardar_compras(df)
 
-    print(f"Pasaje con ID {id_pasaje} cancelado con éxito.") 
+    if datetime.now() > fecha_venta + timedelta(days=60):
+        print("El pasaje no puede ser cancelado. Ha pasado el plazo de 60 días.")
+        return
 
+    update_query = "UPDATE Pasaje SET estado = FALSE WHERE id_venta = %s"
+    ejecutar_query(update_query, (id_pasaje,))
+    print(f"Pasaje con ID {id_pasaje} cancelado con éxito.")

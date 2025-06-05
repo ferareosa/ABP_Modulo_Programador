@@ -1,45 +1,63 @@
+import mysql.connector
+from mysql.connector import Error
+from dotenv import load_dotenv
+from pathlib import Path
 import os
-import pandas as pd
 
-def ruta_absoluta(relativa_desde_modelo: str) -> str:
-    """
-    Devuelve una ruta absoluta segura desde el archivo que llama (como un modelo).
-    """
-    base_dir = os.path.dirname(os.path.abspath(__file__))  # ruta actual (utils/)
-    return os.path.abspath(os.path.join(base_dir, '..', '..', relativa_desde_modelo))  # vuelve a abp/
 
-def cargar_o_crear_csv(ruta_relativa: str, columnas: list) -> pd.DataFrame:
+def conectar_db():
     """
-    Carga un CSV si existe. Si no, lo crea con los encabezados indicados.
-
-    Args:
-        ruta_relativa (str): Ruta relativa desde la raíz del proyecto.
-        columnas (list): Lista de nombres de columnas.
+    Establece una conexión con la base de datos MySQL utilizando las variables de entorno.
 
     Returns:
-        pd.DataFrame: DataFrame con los datos del CSV (vacío si recién creado).
+        mysql.connector.connection_cext.CMySQLConnection | None: Objeto de conexión o None si falla.
     """
-    ruta_csv = ruta_absoluta(ruta_relativa)
+    # Cargar variables de entorno desde .env
+    env_path = Path(__file__).resolve().parent.parent.parent.parent / ".env"
+    load_dotenv(dotenv_path=env_path)
+    try:
+        conexion = mysql.connector.connect(
+            host=os.getenv("DB_HOST", "localhost"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
+            database=os.getenv("DB_NAME")
+        )
+        return conexion
+    except Error as e:
+        print(f"Error al conectar a la base de datos: {e}")
+        return None
 
-    if not os.path.exists(ruta_csv):
-        print(f"Archivo no encontrado en '{ruta_relativa}'. Creando uno nuevo...")
-        df_vacio = pd.DataFrame(columns=columnas)
-        df_vacio.to_csv(ruta_csv, index=False)
-        return df_vacio
-
-    return pd.read_csv(ruta_csv)
-
-def guardar_csv(df: pd.DataFrame, ruta_relativa: str) -> None:
+def ejecutar_query(query: str, params: tuple = None, fetch: bool = False) -> list[dict] | None:
     """
-    Guarda un DataFrame en un archivo CSV.
+    Ejecuta una consulta SQL en la base de datos.
 
     Args:
-        df (pd.DataFrame): DataFrame a guardar.
-        ruta_relativa (str): Ruta relativa desde la raíz del proyecto.
+        query (str): Consulta SQL.
+        params (tuple, optional): Parámetros para la query (opcional).
+        fetch (bool, optional): Si es True, devuelve los resultados como lista de diccionarios.
+
+    Returns:
+        list[dict] | None: Resultados si `fetch=True`. None si no se usa fetch o si hay error.
     """
-    ruta_csv = ruta_absoluta(ruta_relativa)
+    conexion = conectar_db()
+    if conexion is None:
+        return [] if fetch else None
+
     try:
-        df.to_csv(ruta_csv, index=False)
-        print(f"Datos guardados correctamente en '{ruta_relativa}'.")
-    except Exception as e:
-        print(f"Error al guardar los datos en '{ruta_relativa}': {e}")
+        cursor = conexion.cursor(dictionary=True)
+        cursor.execute(query, params or ())
+
+        if fetch:
+            return cursor.fetchall()
+
+        conexion.commit()
+        return None
+
+    except Error as e:
+        print(f"Error al ejecutar la consulta: {e}")
+        return [] if fetch else None
+
+    finally:
+        if conexion.is_connected():
+            cursor.close()
+            conexion.close()

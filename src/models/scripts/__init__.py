@@ -1,2 +1,1 @@
-from .scripts import cargar_o_crear_csv
-from .scripts import guardar_csv
+from .scripts import ejecutar_query

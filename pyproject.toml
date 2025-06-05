@@ -4,18 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "skyroute"
-version = "1.0"
+version = "2.0"
 description = "Este sistema permite gestionar pasajes de SkyRoute como parte de un proyecto educativo."
 authors = [
     {name = "Areosa, Fernando"},
     {name ="Muñoz Brizuela, Fátima Belén"},
-    {name ="Varela, Mario"},
-    {name ="Annone, Ariel Gastón"},
-    {name ="Krenz, Catalina"}
+    {name ="Varela, Mario"}
 ]
 readme = "README.md"
 requires-python = ">=3.8"
 
 dependencies = [
-  "pandas"
+  "mysql-connector-python",
+  "python-dotenv"
 ]
