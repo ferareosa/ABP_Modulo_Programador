@@ -54,6 +54,6 @@ INSERT INTO Destino (id_destino, ciudad, pais, costo_base, disponible) VALUES
 
 -- Pasajes
 INSERT INTO Pasaje (id_venta, cuit, id_destino, fecha_venta, estado, costo_total) VALUES
-(1001, 20123456789, 'ArgBue', '2025-06-01', TRUE, 15000.00),
-(1002, 27876543210, 'ChiSan', '2025-06-02', TRUE, 18000.00),
-(1003, 20123456789, 'PerLim', '2025-06-03', FALSE, 20000.00);
+(1001, 20123456789, 'ArgBue', '01/06/2024', TRUE, 15000.00),
+(1002, 27876543210, 'ChiSan', '02/06/2025', TRUE, 18000.00),
+(1003, 20123456789, 'PerLim', '03/06/2025', FALSE, 20000.00);

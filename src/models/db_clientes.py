@@ -1,7 +1,6 @@
 from ..types import Cliente
 from .scripts import ejecutar_query
 
-
 def obtener_clientes() -> list[Cliente]:
     """
     Obtiene todos los clientes desde la base de datos.
@@ -12,8 +11,7 @@ def obtener_clientes() -> list[Cliente]:
     query = "SELECT cuit, razon_social, email FROM Cliente"
     return ejecutar_query(query, fetch=True) or []
 
-
-def guardar_cliente(cliente: Cliente) -> Cliente | None:
+def nuevo_cliente(cliente: Cliente) -> Cliente | None:
     """
     Inserta un nuevo cliente en la base de datos si no existe.
 
@@ -39,7 +37,6 @@ def guardar_cliente(cliente: Cliente) -> Cliente | None:
     ejecutar_query(query, params)
     return cliente
 
-
 def obtener_cliente(cuit: int) -> Cliente | None:
     """
     Obtiene un cliente por su CUIT.
@@ -53,18 +50,6 @@ def obtener_cliente(cuit: int) -> Cliente | None:
     query = "SELECT * FROM Cliente WHERE cuit = %s"
     resultado = ejecutar_query(query, (cuit,), fetch=True)
     return resultado[0] if resultado else None
-
-
-def eliminar_cliente(cuit: int) -> None:
-    """
-    Elimina un cliente de la base de datos.
-
-    Args:
-        cuit (int): CUIT del cliente a eliminar.
-    """
-    query = "DELETE FROM clientes WHERE cuit = %s"
-    ejecutar_query(query, (cuit,))
-
 
 def es_cliente(cuit: int) -> bool:
     """
@@ -80,7 +65,6 @@ def es_cliente(cuit: int) -> bool:
     resultado = ejecutar_query(query, (cuit,), fetch=True)
     return bool(resultado)
 
-
 def imprimir_clientes() -> None:
     """
     Imprime todos los clientes en consola.
@@ -92,33 +76,6 @@ def imprimir_clientes() -> None:
 
     for cliente in clientes:
         print(f"CUIT: {cliente['cuit']} | Razon Social: {cliente['razon_social']} | Email: {cliente['email']}")
-
-def nuevo_cliente(cliente: Cliente) -> None:
-    """
-    Inserta un nuevo cliente en la base de datos si no existe previamente.
-
-    Args:
-        cliente (Cliente): Diccionario con los datos del cliente.
-    """
-    # Verificar si ya existe un cliente con ese cuit
-    existe = ejecutar_query("SELECT * FROM Cliente WHERE cuit = %s", (cliente["cuit"],), fetch=True)
-    if existe:
-        print("El cliente ya existe.")
-        return
-
-    query = """
-        INSERT INTO Cliente (cuit, nombre, apellido, edad)
-        VALUES (%s, %s, %s, %s)
-    """
-    params = (
-        cliente["cuit"],
-        cliente["nombre"],
-        cliente["apellido"],
-        cliente["edad"]
-    )
-    ejecutar_query(query, params)
-    print("Cliente agregado correctamente.")
-
 
 def delete_cliente(cuit: str) -> None:
     """

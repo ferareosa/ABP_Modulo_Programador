@@ -81,7 +81,7 @@ def cancelar_pasaje(id_pasaje: int) -> None:
 
     fecha_venta_str = resultado[0]["fecha_venta"]
     try:
-        fecha_venta = datetime.strptime(fecha_venta_str, "%Y-%m-%d")
+        fecha_venta = datetime.strptime(fecha_venta_str, "%d/%m/%Y")
     except ValueError:
         print("Formato de fecha inválido en la base de datos.")
         return
