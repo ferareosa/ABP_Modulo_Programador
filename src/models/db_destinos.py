@@ -9,7 +9,7 @@ def obtener_destinos() -> list[Destino]:
     Returns:
         list[Destino]: Lista de destinos como diccionarios.
     """
-    query = "SELECT * FROM Destino"
+    query = "SELECT * FROM Destino ORDER BY disponible DESC"
     return ejecutar_query(query, fetch=True) or []
 
 
@@ -37,18 +37,13 @@ def nuevo_destino(destino: Destino) -> None:
         print("El destino nuevo no es válido.")
         return
 
-    id_destino = destino["pais"].capitalize()[:3] + destino["ciudad"].capitalize()[:3]
-    if es_destino(id_destino):
-        print("El destino ya existe.")
-        return
-
     query = """
-        INSERT INTO Destino (id_destino, ciudad, pais, costo_base, disponible)
-        VALUES (%s, %s, %s, %s, TRUE)
+        INSERT INTO Destino (ciudad, pais, costo_base, disponible)
+        VALUES (%s, %s, %s, TRUE)
     """
-    params = (id_destino, destino["ciudad"], destino["pais"], destino["costo_base"])
+    params = (destino["ciudad"], destino["pais"], destino["costo_base"])
     ejecutar_query(query, params)
-    print(f"Destino {id_destino} agregado correctamente.")
+    print(f"Destino agregado correctamente.")
 
 
 def obtener_destino(id_destino: str) -> Destino | None:
@@ -109,3 +104,20 @@ def es_destino(id_destino: str) -> bool:
     query = "SELECT 1 FROM Destino WHERE id_destino = %s"
     resultado = ejecutar_query(query, (id_destino,), fetch=True)
     return bool(resultado)
+
+def update_destino(destino:Destino)-> None:
+    """
+    Modifica un cliente de la base de datos por su CUIT.
+
+    Args:
+        cuit (int): CUIT del cliente a eliminar.
+    """
+    if es_destino(destino["id_destino"]):
+        query = '''
+        UPDATE Destino 
+        SET ciudad= %s, pais= %s, costo_base= %s
+        WHERE id_destino= %s
+        '''
+        ejecutar_query(query, (destino["ciudad"], destino["pais"], destino["costo_base"], destino["id_destino"]))
+    else:
+        nuevo_destino(destino)

@@ -7,7 +7,6 @@ from ..models import imprimir_registro
 from ..models import imprimir_destinos
 from ..models import obtener_destino
 from ..models import comprar_pasaje
-from ..models import nuevo_id_pasaje
 from ..models import cancelar_pasaje
 from ..models import nuevo_cliente
 from ..models import obtener_cliente
@@ -74,10 +73,11 @@ def compra_de_pasaje()-> None | int :
     if not cliente:return None
     print("\n-- A que destino viaja? --")
     destino = elejir_destino()
-    if not destino:return None
+    if not destino or not destino["disponible"]:
+        print("Destino no valido.")
+        return None
     fecha_venta = datetime.today().strftime('%d/%m/%Y')
     pasaje = {
-        "id_venta": nuevo_id_pasaje(),
         "cuit": cliente["cuit"],
         "id_destino": destino["id_destino"],
         "fecha_venta": fecha_venta,

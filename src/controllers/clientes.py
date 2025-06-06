@@ -7,6 +7,7 @@ from ..models import nuevo_cliente
 from ..models import obtener_cliente
 from ..models import es_cliente
 from ..models import delete_cliente
+from ..models import update_cliente
 
 def gestionar_clientes()-> int | None:
     print("\n-- GESTIONAR CLIENTES --")
@@ -47,19 +48,18 @@ def modificar_cliente()-> None | int:
     cuit = opcion_ingresada("Ingrese el CUIT del cliente a modificar: ")
     cliente = obtener_cliente(cuit)
     if cliente:
-        print("Cliente encontrado:")
-        delete_cliente(cliente["cuit"])  # Eliminar el cliente para poder modificarlo
+        print("Cliente encontrado:") # Eliminar el cliente para poder modificarlo
         print(f"CUIT: {cliente['cuit']}")
         print(f"Razon Social: {cliente['razon_social']}")
         print(f"E-mail: {cliente['email']}")
         print("Ingrese los nuevos datos del cliente (deje en blanco para no modificar):")
-        cuit = dato_ingresado("Nuevo CUIT", "int") or cliente["cuit"]
+        cuit = cliente["cuit"]
         razon_social = dato_ingresado("Nueva Razon Social", "str")  or cliente["razon_social"]
         email = dato_ingresado("Nuevo E-mail", "str") or cliente["email"]
         cliente["cuit"] = cuit
         cliente["razon_social"] = razon_social
         cliente["email"] = email
-        nuevo_cliente(cliente)
+        update_cliente(cliente)
     print("=============================================================")
     if no_continuar("¿Desea modificar otro cliente? (s/n)"): return None
     else: return 3
@@ -71,7 +71,7 @@ def eliminar_cliente()-> None | int:
     if es_cliente(cuit):
         print("Cliente encontrado:")
         print(f"CUIT: {cuit}")
-        confirmacion = no_continuar("¿Está seguro de que desea eliminar este cliente? (s/n)")
+        confirmacion = no_continuar("¿Está seguro de que desea eliminar este cliente? Se eliminaran todos los registros de pasajes (s/n)")
         if confirmacion:
             print("Eliminación cancelada.")
         else:

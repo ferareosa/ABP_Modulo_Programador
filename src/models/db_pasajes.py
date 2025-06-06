@@ -10,7 +10,7 @@ def obtener_pasajes() -> list[Pasaje]:
     Returns:
         list[Pasaje]: Lista de pasajes como diccionarios.
     """
-    query = "SELECT * FROM Pasaje"
+    query = "SELECT * FROM Pasaje disponible ORDER BY estado DESC"
     return ejecutar_query(query, fetch=True) or []
 
 
@@ -34,15 +34,12 @@ def comprar_pasaje(pasaje: Pasaje) -> None:
     Args:
         pasaje (Pasaje): Diccionario con los datos del pasaje.
     """
-    nuevo_id = nuevo_id_pasaje()
-    pasaje["id_venta"] = nuevo_id
 
     query = """
-        INSERT INTO Pasaje (id_venta, cuit, id_destino, fecha_venta, estado, costo_total)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO Pasaje (cuit, id_destino, fecha_venta, estado, costo_total)
+        VALUES (%s, %s, %s, %s, %s)
     """
     params = (
-        pasaje["id_venta"],
         pasaje["cuit"],
         pasaje["id_destino"],
         pasaje["fecha_venta"], 
@@ -51,19 +48,6 @@ def comprar_pasaje(pasaje: Pasaje) -> None:
     )
     ejecutar_query(query, params)
     print("Pasaje comprado con éxito.")
-
-
-def nuevo_id_pasaje() -> int:
-    """
-    Genera un nuevo ID único para un pasaje.
-
-    Returns:
-        int: Nuevo ID.
-    """
-    query = "SELECT MAX(id_venta) AS max_id FROM Pasaje"
-    resultado = ejecutar_query(query, fetch=True)
-    return (resultado[0]["max_id"] or 0) + 1
-
 
 def cancelar_pasaje(id_pasaje: int) -> None:
     """

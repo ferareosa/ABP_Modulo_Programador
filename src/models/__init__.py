@@ -3,13 +3,14 @@ from .db_clientes import nuevo_cliente
 from .db_clientes import obtener_cliente
 from .db_clientes import es_cliente
 from .db_clientes import delete_cliente
+from .db_clientes import update_cliente
 from .db_destinos import imprimir_destinos
 from .db_destinos import nuevo_destino
 from .db_destinos import obtener_destino
 from .db_destinos import es_destino
 from .db_destinos import delete_destino
 from .db_destinos import alternar_disponibilidad_destino
+from .db_destinos import update_destino
 from .db_pasajes import imprimir_registro
 from .db_pasajes import comprar_pasaje
-from .db_pasajes import nuevo_id_pasaje
 from .db_pasajes import cancelar_pasaje

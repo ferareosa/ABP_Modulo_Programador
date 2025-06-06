@@ -7,7 +7,7 @@ from ..models import nuevo_destino
 from ..models import obtener_destino
 from ..models import es_destino
 from ..models import alternar_disponibilidad_destino
-from ..models import delete_destino
+from ..models import update_destino
 
 def gestionar_destinos()-> int | None:
     print("\n-- GESTIONAR DESTINOS --")
@@ -44,9 +44,8 @@ def agregar_destino()-> None | int:
 def modificar_destino()-> None | int:
     print("\n-- MODIFICAR DESTINO --")
     ver_destinos()
-    id = dato_ingresado("ID del destino a modificar: ", "str")
+    id = dato_ingresado("ID del destino a modificar: ", "int")
     destino = obtener_destino(id)
-    print(destino)
     if destino:
         print("Destino encontrado:")
         print(f"ID: {destino['id_destino']}")
@@ -63,9 +62,7 @@ def modificar_destino()-> None | int:
         if no_continuar("¿Está seguro de que desea modificar este destino? (s/n)"):
             print("Modificacion cancelada.")
         else:
-            print(destino)
-            delete_destino(destino["id_destino"])
-            nuevo_destino(destino)
+            update_destino(destino)
     print("=============================================================")
     if no_continuar("¿Desea modificar otro destino? (s/n)"): return None
     else: return 3

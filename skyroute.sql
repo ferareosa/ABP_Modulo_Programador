@@ -11,49 +11,54 @@ FLUSH PRIVILEGES;
 CREATE DATABASE IF NOT EXISTS skyroute;
 USE skyroute;
 
--- Tabla Cliente
+-- Crear tabla Cliente
 CREATE TABLE Cliente (
     cuit BIGINT PRIMARY KEY,
     razon_social VARCHAR(100),
     email VARCHAR(100)
 );
 
--- Tabla Destino
+-- Crear tabla Destino
 CREATE TABLE Destino (
-    id_destino VARCHAR(6) PRIMARY KEY,
+    id_destino INT AUTO_INCREMENT PRIMARY KEY,
     ciudad VARCHAR(100),
     pais VARCHAR(100),
     costo_base DECIMAL(10,2),
     disponible BOOLEAN
 );
 
--- Tabla Pasaje
+-- Crear tabla Pasaje
 CREATE TABLE Pasaje (
-    id_venta INT PRIMARY KEY,
+    id_venta INT AUTO_INCREMENT PRIMARY KEY,
     cuit BIGINT,
-    id_destino VARCHAR(6),
+    id_destino INT,
     fecha_venta VARCHAR(20),
     estado BOOLEAN,
     costo_total DECIMAL(10,2),
-    FOREIGN KEY (cuit) REFERENCES Cliente(cuit),
+    FOREIGN KEY (cuit) REFERENCES Cliente(cuit) ON DELETE CASCADE,
     FOREIGN KEY (id_destino) REFERENCES Destino(id_destino)
 );
 
--- Datos de ejemplo
+-- Establecer valor inicial de AUTO_INCREMENT
+ALTER TABLE Destino AUTO_INCREMENT = 1001;
+ALTER TABLE Pasaje AUTO_INCREMENT = 1001;
 
--- Clientes
+--DATOS DE EJEMPLO:
+
+-- Insertar datos en Cliente
 INSERT INTO Cliente (cuit, razon_social, email) VALUES
 (20123456789, 'Empresa A S.A.', 'contacto@empresaa.com'),
-(27876543210, 'Empresa B SRL', 'info@empresab.com');
+(27876543210, 'Empresa B S.R.L.', 'info@empresab.com'),
+(27876543227, 'Empresa C S.A.S.', 'pepe@pepito.com');
 
--- Destinos
-INSERT INTO Destino (id_destino, ciudad, pais, costo_base, disponible) VALUES
-('ArgBue', 'Buenos Aires', 'Argentina', 15000.00, TRUE),
-('ChiSan', 'Santiago', 'Chile', 18000.00, TRUE),
-('PerLim', 'Lima', 'Perú', 20000.00, FALSE);
+-- Insertar datos en Destino
+INSERT INTO Destino (ciudad, pais, costo_base, disponible) VALUES
+('Buenos Aires', 'Argentina', 15000.00, TRUE),
+('Santiago', 'Chile', 18000.00, TRUE),
+('Lima', 'Perú', 20000.00, FALSE);
 
--- Pasajes
-INSERT INTO Pasaje (id_venta, cuit, id_destino, fecha_venta, estado, costo_total) VALUES
-(1001, 20123456789, 'ArgBue', '01/06/2024', TRUE, 15000.00),
-(1002, 27876543210, 'ChiSan', '02/06/2025', TRUE, 18000.00),
-(1003, 20123456789, 'PerLim', '03/06/2025', FALSE, 20000.00);
+-- Insertar datos en Pasaje
+INSERT INTO Pasaje (cuit, id_destino, fecha_venta, estado, costo_total) VALUES
+(20123456789, 1001, '01/06/2024', TRUE, 15000.00),
+(27876543210, 1002, '02/06/2025', TRUE, 18000.00),
+(20123456789, 1003, '03/06/2025', FALSE, 20000.00);

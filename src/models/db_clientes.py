@@ -82,14 +82,31 @@ def delete_cliente(cuit: str) -> None:
     Elimina un cliente de la base de datos por su CUIT.
 
     Args:
-        cuit (str): CUIT del cliente a eliminar.
+        cuit (int): CUIT del cliente a eliminar.
     """
     # Verificar si el cliente existe
     existe = ejecutar_query("SELECT * FROM Cliente WHERE cuit = %s", (cuit,), fetch=True)
     if not existe:
         print("Cliente no encontrado.")
         return
-
     query = "DELETE FROM Cliente WHERE cuit = %s"
     ejecutar_query(query, (cuit,))
     print("Cliente eliminado correctamente.")
+
+def update_cliente(cliente:Cliente)-> None:
+    """
+    Modifica un cliente de la base de datos por su CUIT.
+
+    Args:
+        cuit (int): CUIT del cliente a eliminar.
+    """
+    existe = es_cliente(cliente["cuit"])
+    if existe:
+        query = '''
+        UPDATE Cliente 
+        SET razon_social= %s, email= %s
+        WHERE cuit= %s
+        '''
+        ejecutar_query(query, (cliente["razon_social"], cliente["email"], cliente["cuit"]))
+    else:
+        nuevo_cliente(cliente)

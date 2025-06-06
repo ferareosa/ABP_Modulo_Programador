@@ -22,7 +22,9 @@
    pip install .
    ```
 
-3. Ejecutar el programa principal:
+3. Ejecutar `skyroute.sql` en MySQL Workbench o similar
+
+4. Ejecutar el programa principal:
 
    ```bash
    python main.py
@@ -58,7 +60,7 @@
 
 #### 2. Destino
 
-- `id_destino` (Texto) → **Clave primaria**
+- `id_destino` (Numero Autoincrementable) → **Clave primaria**
 - `ciudad` (Texto)
 - `pais` (Texto)
 - `costo_base` (Número decimal)
@@ -66,7 +68,7 @@
 
 #### 3. Pasaje
 
-- `id_venta` (Número entero) → **Clave primaria**
+- `id_venta` (Numero Autoincrementable) → **Clave primaria**
 - `cuit` (Número entero) → **Clave foránea a Cliente**
 - `id_destino` (Texto) → **Clave foránea a Destino**
 - `fecha_venta` (Texto)

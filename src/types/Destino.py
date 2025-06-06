@@ -7,4 +7,3 @@ class Destino(TypedDict):
     pais: str
     costo_base: float
     disponible: NotRequired[bool]
-    id_destino: NotRequired[str]
