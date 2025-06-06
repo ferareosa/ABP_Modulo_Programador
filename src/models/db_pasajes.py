@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from ..types import Pasaje
+from ..types import Pasaje_completo
 from .scripts import ejecutar_query
 
 
@@ -77,3 +78,29 @@ def cancelar_pasaje(id_pasaje: int) -> None:
     update_query = "UPDATE Pasaje SET estado = FALSE WHERE id_venta = %s"
     ejecutar_query(update_query, (id_pasaje,))
     print(f"Pasaje con ID {id_pasaje} cancelado con éxito.")
+
+def obtener_pasaje(id_venta: int)->Pasaje_completo | None:
+    """
+    Obtiene el pasaje desde la base de datos mediante una consulta multitabla.
+
+    Returns:
+        Pasaje_completo : Pasaje como diccionario.
+    """
+    query = """
+    SELECT
+    p.id_venta,
+    p.fecha_venta,
+    p.estado,
+    p.costo_total,
+    c.cuit,
+    c.razon_social,
+    d.ciudad,
+    d.pais
+    FROM Pasaje p
+    JOIN Cliente c ON p.cuit = c.cuit
+    JOIN Destino d ON p.id_destino = d.id_destino
+    WHERE id_venta = %s;
+    
+    """
+    [pasaje] = ejecutar_query(query, (id_venta,), fetch=True) or None
+    return pasaje

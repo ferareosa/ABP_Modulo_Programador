@@ -11,6 +11,7 @@ from ..models import cancelar_pasaje
 from ..models import nuevo_cliente
 from ..models import obtener_cliente
 from ..models import imprimir_clientes
+from ..models import obtener_pasaje
 from ..types import Cliente
 from ..types import Destino
 
@@ -26,12 +27,25 @@ def gestionar_pasajes()-> int | None:
         return opcion
     return None
 
-def detalle_pasaje():
-    pass
+def detalle_pasaje(id_venta):
+    detalle_de_pasaje = obtener_pasaje(id_venta)
+    if not detalle_de_pasaje:return
+    else:
+        cuit = detalle_de_pasaje['cuit']
+        razon_social = detalle_de_pasaje['razon_social']
+        destino = f"{detalle_de_pasaje['id_destino']}  {detalle_de_pasaje['pais']}, {detalle_de_pasaje['ciudad']}"
+        fecha = detalle_de_pasaje['fecha_venta']
+        estado = 'Activo' if detalle_de_pasaje['estado'] else 'Inactivo'
+        costo = detalle_de_pasaje['costo_total']
+
+        print("ID Venta: | CUIT: | Razon Social: | Destino: |  Fecha: | Estado: | Costo:")
+        print(f"{id_venta}| {cuit} | {razon_social} | {destino} | {fecha} | {estado} | ${costo}")
 
 def ver_pasajes():
     imprimir_registro()
     print("=============================================================")
+    if no_continuar("Desea ver el detalle de algun pasaje? (s/n):"): return
+    else: detalle_pasaje(dato_ingresado("ID de la venta", "int"))
 
 def elejir_cliente()-> Cliente | None:
     print("1. Nuevo Cliente")

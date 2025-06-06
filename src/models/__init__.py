@@ -14,3 +14,4 @@ from .db_destinos import update_destino
 from .db_pasajes import imprimir_registro
 from .db_pasajes import comprar_pasaje
 from .db_pasajes import cancelar_pasaje
+from .db_pasajes import obtener_pasaje
