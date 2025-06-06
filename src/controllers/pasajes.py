@@ -33,7 +33,7 @@ def detalle_pasaje(id_venta):
     else:
         cuit = detalle_de_pasaje['cuit']
         razon_social = detalle_de_pasaje['razon_social']
-        destino = f"{detalle_de_pasaje['id_destino']}  {detalle_de_pasaje['pais']}, {detalle_de_pasaje['ciudad']}"
+        destino = f"{detalle_de_pasaje['pais']}, {detalle_de_pasaje['ciudad']}"
         fecha = detalle_de_pasaje['fecha_venta']
         estado = 'Activo' if detalle_de_pasaje['estado'] else 'Inactivo'
         costo = detalle_de_pasaje['costo_total']

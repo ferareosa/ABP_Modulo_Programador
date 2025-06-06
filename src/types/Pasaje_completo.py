@@ -1,5 +1,5 @@
 from typing import TypedDict
-class Pasaje(TypedDict):
+class Pasaje_completo(TypedDict):
     """
     Definición de la estructura de un pasaje completo.
     """
