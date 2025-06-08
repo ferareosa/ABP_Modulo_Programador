@@ -1,22 +1,33 @@
 from typing import Literal
-def dato_ingresado(nombre_dato : str, tipo : Literal["str", "int", "float"]) -> str | int | float | None:
+from typing import Literal
+from rich.prompt import Prompt, IntPrompt
+from rich.console import Console
+
+console = Console()
+
+def dato_ingresado(nombre_dato: str, tipo: Literal["str", "int", "float"]) -> str | int | float | None:
     """
-    Esta función solicita al usuario que ingrese una opción y verifica si es válida.
-    Si la opción es válida, la devuelve; de lo contrario, muestra un mensaje de error y vuelve a solicitar la entrada.
+    Solicita al usuario que ingrese un valor y lo convierte al tipo especificado.
+    Devuelve None si el valor ingresado no es válido.
     """
-    
-    dato = input(f"Ingresar {nombre_dato}: ")
-    if dato and tipo == "str":
-        return dato
-    elif tipo == "str": return None
-    elif tipo == "int":
-        try:
-            return int(dato)
-        except ValueError:
-            return None
-    elif tipo == "float":
-        try:
+
+    try:
+        if tipo == "str":
+            dato = Prompt.ask(f"[bold cyan]Ingresar {nombre_dato}[/bold cyan]").strip()
+            return dato if dato else None
+
+        elif tipo == "int":
+            return IntPrompt.ask(f"[bold cyan]Ingresar {nombre_dato}[/bold cyan]")
+
+        elif tipo == "float":
+            dato = Prompt.ask(f"[bold cyan]Ingresar {nombre_dato}[/bold cyan]")
             return float(dato)
-        except ValueError:
-            return None
+
+    except ValueError:
+        console.print(f"[bold red]❌ Error:[/bold red] El valor ingresado no es un {tipo}.", style="error")
+        return None
+    except KeyboardInterrupt:
+        console.print(f"\n[bold yellow]⚠️ Entrada cancelada.[/bold yellow]", style="warning")
+        return None
+
     return None

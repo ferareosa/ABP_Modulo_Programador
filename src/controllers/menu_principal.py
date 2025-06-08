@@ -1,26 +1,27 @@
-from .scripts import opcion_ingresada
-from .scripts import es_opcion_correcta
+import os
+import time
+from src.utils import consola_rich as consola
 
 def menu_principal()-> int | None:
-    print("\n=== Bienvenidos a SkyRoute – Sistema de Gestión de Pasajes ===")
-    print("1. Gestionar Clientes")
-    print("2. Gestionar Destinos")
-    print("3. Gestionar Pasajes")
-    print("4. Acerca del Sistema")
-    print("5. Salir")
-    print("=============================================================")
-    opcion = opcion_ingresada()
-    if es_opcion_correcta(opcion, 5):
-        return opcion
-    return None
+    return consola.mostrar_menu(
+        "=== Bienvenidos a SkyRoute – Sistema de Gestión de Pasajes ===",
+        [
+            "Gestionar Clientes",
+            "Gestionar Destinos",
+            "Gestionar Pasajes",
+            "Acerca del Sistema",
+            "Salir"
+        ]
+    )
 
 def acerca_del_sistema():
-    print("\n=== Acerca del Sistema ===")
-    print("Este sistema permite gestionar pasajes de SkyRoute como parte de un proyecto educativo.")
-    print("Desarrollado por:")
-    print("Areosa, Fernando. 36131545")
-    print("Muñoz Brizuela, Fátima Belén. 39824821")
-    print("Varela, Mario. 31401019")
-    print("")
-    print("Versión 2.0")
-    print("=============================================================")
+    ruta = os.path.join(os.path.dirname(__file__), "./caratula.md")
+    try:
+        consola.console.print("[bold blue]=============================================================[/bold blue]")
+        consola.mostrar_titulo("Tecnicatura Superior en Ciencias de Datos e Inteligencia Artificial")
+        with open(ruta, encoding="utf-8") as readme:
+            consola.imprimir_md(readme.read())
+        consola.console.print("[bold blue]=============================================================[/bold blue]")
+    except FileNotFoundError:
+        consola.error("No se encontró el archivo caratula.md.")
+    time.sleep(1.5)  # Pausa para que el usuario pueda leer la información

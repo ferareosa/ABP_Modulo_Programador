@@ -16,5 +16,6 @@ requires-python = ">=3.8"
 
 dependencies = [
   "mysql-connector-python",
-  "python-dotenv"
+  "python-dotenv",
+  "rich"
 ]

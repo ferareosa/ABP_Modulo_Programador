@@ -1,5 +1,6 @@
 from ..types import Cliente
 from .scripts import ejecutar_query
+from ..utils import consola_rich as consola
 
 def obtener_clientes() -> list[Cliente]:
     """
@@ -22,11 +23,11 @@ def nuevo_cliente(cliente: Cliente) -> Cliente | None:
         Cliente | None: El cliente insertado o None si ya existía o hubo error.
     """
     if not (isinstance(cliente["cuit"], int) and isinstance(cliente["razon_social"], str) and isinstance(cliente["email"], str)):
-        print("Cliente no válido.")
+        consola.error("Cliente no válido.")
         return None
 
     if es_cliente(cliente["cuit"]):
-        print("El cliente ya existe.")
+        consola.advertir("El cliente ya existe.")
         return None
 
     query = """
@@ -71,11 +72,13 @@ def imprimir_clientes() -> None:
     """
     clientes = obtener_clientes()
     if not clientes:
-        print("No hay clientes registrados.")
+        consola.error("No hay clientes registrados.")
         return
-
-    for cliente in clientes:
-        print(f"CUIT: {cliente['cuit']} | Razon Social: {cliente['razon_social']} | Email: {cliente['email']}")
+    consola.mostrar_tabla(
+        titulo="Clientes Registrados",
+        columnas=["CUIT", "Razon Social", "Email"],
+        filas=[[cliente["cuit"], cliente["razon_social"], cliente["email"]] for cliente in clientes]
+        )
 
 def delete_cliente(cuit: str) -> None:
     """
@@ -87,11 +90,11 @@ def delete_cliente(cuit: str) -> None:
     # Verificar si el cliente existe
     existe = ejecutar_query("SELECT * FROM Cliente WHERE cuit = %s", (cuit,), fetch=True)
     if not existe:
-        print("Cliente no encontrado.")
+        consola.error("Cliente no encontrado.")
         return
     query = "DELETE FROM Cliente WHERE cuit = %s"
     ejecutar_query(query, (cuit,))
-    print("Cliente eliminado correctamente.")
+    consola.info("Cliente eliminado correctamente.")
 
 def update_cliente(cliente:Cliente)-> None:
     """
@@ -110,3 +113,4 @@ def update_cliente(cliente:Cliente)-> None:
         ejecutar_query(query, (cliente["razon_social"], cliente["email"], cliente["cuit"]))
     else:
         nuevo_cliente(cliente)
+

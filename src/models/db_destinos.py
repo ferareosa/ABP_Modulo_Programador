@@ -1,6 +1,6 @@
 from ..types import Destino
 from .scripts import ejecutar_query
-
+from ..utils import consola_rich as consola
 
 def obtener_destinos() -> list[Destino]:
     """
@@ -19,12 +19,22 @@ def imprimir_destinos() -> None:
     """
     destinos = obtener_destinos()
     if not destinos:
-        print("No hay destinos registrados.")
+        consola.error("No hay destinos registrados.")
         return
 
-    for d in destinos:
-        print(f"ID: {d['id_destino']} | Ciudad: {d['ciudad']} | País: {d['pais']} | Costo: ${d['costo_base']} | Disponible: {'Si' if d['disponible'] else 'No'}")
-
+    consola.mostrar_tabla(
+        titulo="Destinos Disponibles",
+        columnas=("ID", "Ciudad", "País", "Costo Base", "Disponible"),
+        filas=
+        [
+        [d["id_destino"], 
+        d["ciudad"], 
+        d["pais"], 
+        f"${d['costo_base']:.2f}", 
+        "[info]✅ Si[/info]" if d["disponible"] else "[error]❌ No[/error]"]
+        for d in destinos
+        ]
+    )
 
 def nuevo_destino(destino: Destino) -> None:
     """
@@ -34,7 +44,7 @@ def nuevo_destino(destino: Destino) -> None:
         destino (Destino): Diccionario con los datos del destino.
     """
     if not (isinstance(destino["ciudad"], str) and isinstance(destino["pais"], str) and isinstance(destino["costo_base"], float)):
-        print("El destino nuevo no es válido.")
+        consola.error("El destino nuevo no es válido.")
         return
 
     query = """
@@ -43,7 +53,7 @@ def nuevo_destino(destino: Destino) -> None:
     """
     params = (destino["ciudad"], destino["pais"], destino["costo_base"])
     ejecutar_query(query, params)
-    print(f"Destino agregado correctamente.")
+    consola.info(f"Destino agregado correctamente.")
 
 
 def obtener_destino(id_destino: str) -> Destino | None:
@@ -70,7 +80,7 @@ def delete_destino(id_destino: str) -> None:
     """
     query = "DELETE FROM Destino WHERE id_destino = %s"
     ejecutar_query(query, (id_destino,))
-    print(f"Destino {id_destino} eliminado.")
+    consola.info(f"Destino {id_destino} eliminado.")
 
 
 def alternar_disponibilidad_destino(id_destino: str) -> None:
@@ -82,13 +92,13 @@ def alternar_disponibilidad_destino(id_destino: str) -> None:
     """
     destino = obtener_destino(id_destino)
     if not destino:
-        print(f"No se encontró un destino con ID {id_destino}.")
+        consola.error(f"No se encontró un destino con ID {id_destino}.")
         return
 
     nuevo_estado = not destino["disponible"]
     query = "UPDATE Destino SET disponible = %s WHERE id_destino = %s"
     ejecutar_query(query, (nuevo_estado, id_destino))
-    print(f"Disponibilidad del destino {id_destino} actualizada a {'Disponible' if nuevo_estado else 'No disponible'}.")
+    consola.info(f"Disponibilidad del destino {id_destino} actualizada a {'[info] Disponible[/info]' if nuevo_estado else '[error] No disponible[/error]'}.")
 
 
 def es_destino(id_destino: str) -> bool:

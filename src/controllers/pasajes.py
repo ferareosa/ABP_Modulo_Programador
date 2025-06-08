@@ -1,6 +1,4 @@
 from datetime import datetime
-from .scripts import opcion_ingresada
-from .scripts import es_opcion_correcta
 from .scripts import no_continuar
 from .scripts import dato_ingresado
 from ..models import imprimir_registro
@@ -14,18 +12,18 @@ from ..models import imprimir_clientes
 from ..models import obtener_pasaje
 from ..types import Cliente
 from ..types import Destino
+from ..utils import consola_rich as consola
 
 def gestionar_pasajes()-> int | None:
-    print("\n-- GESTIONAR PASAJES --")
-    print("1. Ver Pasajes Comprados")
-    print("2. Comprar Pasaje")
-    print("3. Cancelar Pasaje (Boton de Arrepentimiento)")
-    print("4. Volver al Menú Principal")
-    print("=============================================================")
-    opcion = opcion_ingresada()
-    if es_opcion_correcta(opcion, 4):
-        return opcion
-    return None
+    return consola.mostrar_menu(
+        "-- GESTIONAR PASAJES --",
+        [
+            "Ver Pasajes Comprados",
+            "Comprar Pasaje",
+            "Cancelar Pasaje (Boton de Arrepentimiento)",
+            "Volver al Menú Principal"
+        ]
+    )
 
 def detalle_pasaje(id_venta):
     detalle_de_pasaje = obtener_pasaje(id_venta)
@@ -35,60 +33,64 @@ def detalle_pasaje(id_venta):
         razon_social = detalle_de_pasaje['razon_social']
         destino = f"{detalle_de_pasaje['pais']}, {detalle_de_pasaje['ciudad']}"
         fecha = detalle_de_pasaje['fecha_venta']
-        estado = 'Activo' if detalle_de_pasaje['estado'] else 'Inactivo'
+        estado = '[info] Activo[/info]' if detalle_de_pasaje['estado'] else '[error] Inactivo[/error]'
         costo = detalle_de_pasaje['costo_total']
+        consola.mostrar_tabla(
+            titulo=f"Detalle del Pasaje ID: {id_venta}",
+            columnas=["ID Venta", "CUIT", "Razon Social", "Destino", "Fecha", "Estado", "Costo"],
+            filas=[[id_venta, cuit, razon_social, destino, fecha, estado, f"${costo}"]])
 
-        print("ID Venta: | CUIT: | Razon Social: | Destino: |  Fecha: | Estado: | Costo:")
-        print(f"{id_venta}| {cuit} | {razon_social} | {destino} | {fecha} | {estado} | ${costo}")
 
 def ver_pasajes():
     imprimir_registro()
-    print("=============================================================")
+    consola.console.print("[bold blue]=============================================================[/bold blue]")
     if no_continuar("Desea ver el detalle de algun pasaje? (s/n):"): return
     else: detalle_pasaje(dato_ingresado("ID de la venta", "int"))
 
 def elejir_cliente()-> Cliente | None:
-    print("1. Nuevo Cliente")
-    print("2. Seleccionar Cliente Existente")
-    print("3. Volver al Anterior")
-    print("=============================================================")
-    opcion = opcion_ingresada()
-    if es_opcion_correcta(opcion, 3):
-        if opcion == 1:
-            print("Opción 1 seleccionada: Nuevo Cliente")
-            cuit = dato_ingresado("CUIT", "int")
-            razon_social = dato_ingresado("Razon Social", "str")
-            email = dato_ingresado("E-mail", "str")
-            cliente = {
+    opcion= consola.mostrar_menu(
+        "-- Quien hace la compra? --",
+        [
+            "Nuevo Cliente",
+            "Seleccionar Cliente Existente",
+            "Volver al Anterior"
+        ]
+    )
+    
+    if opcion == 1:
+        consola.info("Opción 1 seleccionada: Nuevo Cliente")
+        cuit = dato_ingresado("CUIT", "int")
+        razon_social = dato_ingresado("Razon Social", "str")
+        email = dato_ingresado("E-mail", "str")
+        cliente = {
             "cuit": cuit,
             "razon_social": razon_social,
             "email": email
             }
-            return nuevo_cliente(cliente)
-        elif opcion == 2:
-            print("Opción 2 seleccionada: Seleccionar Cliente Existente")
-            imprimir_clientes()
-            cuit = opcion_ingresada("Ingrese el CUIT del cliente: ")
-            return obtener_cliente(cuit)
-        else:
-            print("=============================================================")
-            return None
+        return nuevo_cliente(cliente)
+    elif opcion == 2:
+        consola.info("Opción 2 seleccionada: Seleccionar Cliente Existente")
+        imprimir_clientes()
+        cuit = dato_ingresado("CUIT del cliente: ", "int")
+        return obtener_cliente(cuit)
+    else:
+        consola.console.print("[bold blue]=============================================================[/bold blue]")
+        return None
 
 def elejir_destino()-> Destino | None:
+    consola.mostrar_titulo("-- A que destino viaja? --")
     imprimir_destinos()
-    print("=============================================================")
-    id = dato_ingresado("ID del destino", "str")
+    consola.console.print("[bold blue]=============================================================[/bold blue]")
+    id = dato_ingresado("ID del destino", "int")
     return obtener_destino(id)
 
 def compra_de_pasaje()-> None | int :
-    print("\n-- COMPRA DE PASAJES --")
-    print("\n-- Quien hace la compra? --")
+    consola.mostrar_titulo("-- COMPRA DE PASAJES --")
     cliente = elejir_cliente()
     if not cliente:return None
-    print("\n-- A que destino viaja? --")
     destino = elejir_destino()
     if not destino or not destino["disponible"]:
-        print("Destino no valido.")
+        consola.error("Destino no valido o no disponible.")
         return None
     fecha_venta = datetime.today().strftime('%d/%m/%Y')
     pasaje = {
@@ -103,13 +105,13 @@ def compra_de_pasaje()-> None | int :
     else: return 2
 
 def cancelacion_de_pasaje() -> None | int:
-    print("\n-- CANCELACION DE PASAJES --")
-    print("--(BOTON DE ARREPENTIMIENTO)--")
-    print("\n-- Seleccione el pasaje a cancelar --")
+    consola.mostrar_titulo("-- CANCELACION DE PASAJES --\n--(BOTON DE ARREPENTIMIENTO)--")
+    
+    consola.console.print("[title] -- Seleccione el pasaje a cancelar --[/title]")
     imprimir_registro()
     id_pasaje = dato_ingresado("ID del pasaje a cancelar", "int")
     if not id_pasaje:
-        print("Error: ID de pasaje no válido.")
+        consola.error("Error: ID de pasaje no válido.")
         return None
     else:
         cancelar_pasaje(id_pasaje)

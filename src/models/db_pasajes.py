@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from ..types import Pasaje
 from ..types import Pasaje_completo
 from .scripts import ejecutar_query
-
+from ..utils import consola_rich as consola
 
 def obtener_pasajes() -> list[Pasaje]:
     """
@@ -14,19 +14,30 @@ def obtener_pasajes() -> list[Pasaje]:
     query = "SELECT * FROM Pasaje disponible ORDER BY estado DESC"
     return ejecutar_query(query, fetch=True) or []
 
-
 def imprimir_registro() -> None:
     """
     Imprime la lista de pasajes en la consola.
     """
     pasajes = obtener_pasajes()
     if not pasajes:
-        print("No hay pasajes registrados.")
+        consola.error("No hay pasajes registrados.")
         return
 
-    for p in pasajes:
-        print(f"ID Venta: {p['id_venta']} | CUIT: {p['cuit']} | Destino: {p['id_destino']} | Fecha: {p['fecha_venta']} | Estado: {'Activo' if p['estado'] else 'Inactivo'} | Costo: ${p['costo_total']}")
-
+    consola.mostrar_tabla(
+        titulo="Registro de Pasajes",
+        columnas=("ID Venta", "CUIT", "Destino", "Fecha Venta", "Estado", "Costo Total"),
+        filas=[
+            [
+                p["id_venta"],
+                p["cuit"],
+                p["id_destino"],
+                p["fecha_venta"],
+                "[info]Activo[/info]" if p["estado"] else "[error]Inactivo[/error]",
+                f"${p['costo_total']:.2f}"
+            ]
+            for p in pasajes
+        ]
+    )
 
 def comprar_pasaje(pasaje: Pasaje) -> None:
     """
@@ -48,7 +59,7 @@ def comprar_pasaje(pasaje: Pasaje) -> None:
         pasaje["costo_total"]
     )
     ejecutar_query(query, params)
-    print("Pasaje comprado con éxito.")
+    consola.info("Pasaje comprado con éxito.")
 
 def cancelar_pasaje(id_pasaje: int) -> None:
     """
@@ -61,23 +72,23 @@ def cancelar_pasaje(id_pasaje: int) -> None:
     resultado = ejecutar_query(query, (id_pasaje,), fetch=True)
 
     if not resultado:
-        print(f"Pasaje con ID {id_pasaje} no encontrado o ya cancelado.")
+        consola.error(f"Pasaje con ID {id_pasaje} no encontrado o ya cancelado.")
         return
 
     fecha_venta_str = resultado[0]["fecha_venta"]
     try:
         fecha_venta = datetime.strptime(fecha_venta_str, "%d/%m/%Y")
     except ValueError:
-        print("Formato de fecha inválido en la base de datos.")
+        consola.error("Formato de fecha inválido en la base de datos.")
         return
 
     if datetime.now() > fecha_venta + timedelta(days=60):
-        print("El pasaje no puede ser cancelado. Ha pasado el plazo de 60 días.")
+        consola.error("El pasaje no puede ser cancelado. Ha pasado el plazo de 60 días.")
         return
 
     update_query = "UPDATE Pasaje SET estado = FALSE WHERE id_venta = %s"
     ejecutar_query(update_query, (id_pasaje,))
-    print(f"Pasaje con ID {id_pasaje} cancelado con éxito.")
+    consola.info(f"Pasaje con ID {id_pasaje} cancelado con éxito.")
 
 def obtener_pasaje(id_venta: int)->Pasaje_completo | None:
     """
