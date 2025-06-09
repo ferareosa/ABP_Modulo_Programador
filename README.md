@@ -19,19 +19,19 @@
   - [🛠️ 5. Problemáticas y Necesidades](#5-%EF%B8%8F-problemáticas-y-necesidades)
   - [💡 6. Fundamentación](#6--fundamentación)
   - [🚀 7. Visión del Proyecto](#7--visión-del-proyecto)
-  - [🎯 Objetivo General](#-objetivo-general)
-  - [✅ Objetivos Específicos](#-objetivos-específicos)
+    - [🎯 Objetivo General](#-objetivo-general)
+    - [✅ Objetivos Específicos](#-objetivos-específicos)
   - [📋 8. Acciones por Objetivo](#-8-acciones-por-objetivo)
   - [📆 9. Cronograma (Estimado en Semanas)](#-9-cronograma-estimado-en-semanas)
   - [🧾 10. Producto Final](#-10-producto-final)
-  - [⚙️ Instrucciones de Uso](#%EF%B8%8F-instrucciones-de-uso)
+- [⚙️ Instrucciones de Uso](#%EF%B8%8F-instrucciones-de-uso)
   - [✅ Requisitos](#-requisitos)
-  - [🧱 Modelo de Datos – Sistema de Gestión de Pasajes](#-modelo-de-datos--sistema-de-gestión-de-pasajes)
-    - [🔹 Entidades Principales](#-entidades-principales)
-    - [🧾 Atributos y Tipos de Datos](#-atributos-y-tipos-de-datos)
-    - [🔗 Relaciones entre Entidades](#-relaciones-entre-entidades)
-    - [🔑 Claves Primarias y Foráneas](#-claves-primarias-y-foráneas)
-    - [📂 Diagrama Entidad–Relación](#-diagrama-entidadrelación)
+- [🧱 Modelo de Datos – Sistema de Gestión de Pasajes](#-modelo-de-datos--sistema-de-gestión-de-pasajes)
+  - [🔹 Entidades Principales](#-entidades-principales)
+  - [🧾 Atributos y Tipos de Datos](#-atributos-y-tipos-de-datos)
+  - [🔗 Relaciones entre Entidades](#-relaciones-entre-entidades)
+  - [🔑 Claves Primarias y Foráneas](#-claves-primarias-y-foráneas)
+  - [📂 Diagrama Entidad–Relación](#-diagrama-entidadrelación)
 - [🧑‍⚖️ Aspectos Legales y Éticos del Proyecto](#%EF%B8%8F-aspectos-legales-y-éticos-del-proyecto)
   - [🧩 Introducción](#-introducción)
   - [⚖️ 1. Figura Legal del Grupo](#%EF%B8%8F-1-figura-legal-del-grupo)
@@ -43,9 +43,9 @@
   - [🌐 7. Cibercriminalidad: Convenio de Budapest](#-7-cibercriminalidad-convenio-de-budapest)
   - [🤖 8. Inteligencia Artificial y Responsabilidad Ética](#-8-inteligencia-artificial-y-responsabilidad-ética)
   - [🧾 9. Fundamentación Legal de Cada Punto](#-9-fundamentación-legal-de-cada-punto)
-  - [🧠 Conclusión](#-conclusión)
-  - [📌 Compromiso Final](#-compromiso-final)
-  - [📚 11. Bibliografía y Referencias](#-11-bibliografía-y-referencias)
+- [🧠 Conclusión](#-conclusión)
+- [📌 Compromiso Final](#-compromiso-final)
+- [📚 Bibliografía y Referencias](#-bibliografía-y-referencias)
 
 ## 👥 Integrantes del Grupo
 
@@ -438,7 +438,7 @@ Como futuros técnicos y analistas de datos, **nos comprometemos a trabajar con 
 
 ---
 
-## 📚 11. Bibliografía y Referencias
+## 📚 Bibliografía y Referencias
 
 - **Ley 24.240** – Defensa del Consumidor
 - **Ley 25.326** – Protección de Datos Personales
